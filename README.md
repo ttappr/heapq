@@ -12,6 +12,29 @@ in safe, idiomatic Rust.
 - Peek at the top element: `heap.get(0)`
 - No unsafe code
 
+## Implemented Functions
+Each operation has three related functions. The first relies on the heap's
+item's type `T` for comparison operations; the second takes a `cmp` function
+that accepts two items for comparison; and, the third takes `cmp` and additional
+information `aux` that is passed to the `cmp` function on each call.
+
+- `heapify<T>(heap: &mut [T])`
+    - `heapify_with<T, C>(heap: &mut [T], cmp: C)`
+    - `heapify_with_aux<T, C, A>(heap: &mut [T], cmp: C, aux: A)`
+- `heap_push<T>(heap: &mut Vec<T>, item: T)`
+    - `heap_push_with<T, C>(heap: &mut Vec<T>, item: T, cmp: C)`
+    - `heap_push_with_aux<T, C, A>(heap: &mut Vec<T>, item: T, cmp: C, aux: A)`
+- `heap_pop<T>(heap: &mut Vec<T>)`
+    - `heap_pop_with<T, C>(heap: &mut Vec<T>, cmp: C)`
+    - `heap_pop_with_aux<T, C, A>(heap: &mut Vec<T>, cmp: C, aux: A)`
+- `heap_pushpop<T>(heap: &mut [T], item: T)`
+    - `heap_pushpop_with<T, C>(heap: &mut [T], item: T, cmp: C)`
+    - `heap_pushpop_with_aux<T, C, A>(heap: &mut [T], item: T, cmp: C, aux: A)`
+- `heap_replace<T>(heap: &mut [T], item: T)`
+    - `heap_replace_with<T, C>(heap: &mut [T], item: T, cmp: C)`
+    - `heap_replace_with_aux<T, C, A>(heap: &mut [T], item: T, cmp: C, aux: A)`   
+
+
 ## Usage
 
 Add this to your `Cargo.toml`:
