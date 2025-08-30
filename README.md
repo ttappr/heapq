@@ -44,6 +44,7 @@ let cmp = |a: &usize, b: &usize, x: &[i32]| x[*a].cmp(&x[*b]);
 
 let mut index_heap = Vec::new();
 
+// Indexes for items in `values` are pushed onto the heap.
 heap_push_with_aux(&mut index_heap, 0, cmp, &values);
 heap_push_with_aux(&mut index_heap, 1, cmp, &values);
 heap_push_with_aux(&mut index_heap, 2, cmp, &values);
