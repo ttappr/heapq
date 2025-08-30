@@ -1,7 +1,7 @@
 # heapq
 
 A minimal Rust library for heap-based priority queues. This crate provides
-heap operations for efficient insertion, removal, and access to the smallest 
+heap operations for efficient insertion, removal, and access to the smallest
 element. It is inspired by Python's `heapq` module, but written
 in safe, idiomatic Rust.
 
@@ -24,15 +24,15 @@ information `aux`, which gets passed to the `cmp` function when invoked.
 - `heap_push<T>(heap: &mut Vec<T>, item: T)`
     - `heap_push_with<T, C>(heap: &mut Vec<T>, item: T, cmp: C)`
     - `heap_push_with_aux<T, C, A>(heap: &mut Vec<T>, item: T, cmp: C, aux: A)`
-- `heap_pop<T>(heap: &mut Vec<T>)`
-    - `heap_pop_with<T, C>(heap: &mut Vec<T>, cmp: C)`
-    - `heap_pop_with_aux<T, C, A>(heap: &mut Vec<T>, cmp: C, aux: A)`
-- `heap_pushpop<T>(heap: &mut [T], item: T)`
-    - `heap_pushpop_with<T, C>(heap: &mut [T], item: T, cmp: C)`
-    - `heap_pushpop_with_aux<T, C, A>(heap: &mut [T], item: T, cmp: C, aux: A)`
-- `heap_replace<T>(heap: &mut [T], item: T)`
-    - `heap_replace_with<T, C>(heap: &mut [T], item: T, cmp: C)`
-    - `heap_replace_with_aux<T, C, A>(heap: &mut [T], item: T, cmp: C, aux: A)`   
+- `heap_pop<T>(heap: &mut Vec<T>) -> Option<T>`
+    - `heap_pop_with<T, C>(heap: &mut Vec<T>, cmp: C) -> Option<T>`
+    - `heap_pop_with_aux<T, C, A>(heap: &mut Vec<T>, cmp: C, aux: A) -> Option<T>`
+- `heap_pushpop<T>(heap: &mut [T], item: T) -> T`
+    - `heap_pushpop_with<T, C>(heap: &mut [T], item: T, cmp: C) -> T`
+    - `heap_pushpop_with_aux<T, C, A>(heap: &mut [T], item: T, cmp: C, aux: A) -> T`
+- `heap_replace<T>(heap: &mut [T], item: T) -> T`
+    - `heap_replace_with<T, C>(heap: &mut [T], item: T, cmp: C) -> T`
+    - `heap_replace_with_aux<T, C, A>(heap: &mut [T], item: T, cmp: C, aux: A) -> T`
 
 
 ## Usage
