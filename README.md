@@ -44,13 +44,13 @@ let cmp = |a: &i32, b: &i32, x: &[i32]| x[*a].cmp(&x[*b]);
 
 let mut index_heap = Vec::new();
 
-heap_push_with_aux(&mut heap, 0, cmp, &values);
-heap_push_with_aux(&mut heap, 1, cmp, &values);
-heap_push_with_aux(&mut heap, 2, cmp, &values);
+heap_push_with_aux(&mut index_heap, 0, cmp, &values);
+heap_push_with_aux(&mut index_heap, 1, cmp, &values);
+heap_push_with_aux(&mut index_heap, 2, cmp, &values);
 
-assert_eq!(heap_pop_with(&mut heap, cmp, &values), 1); // 1 is an index to 1.
-assert_eq!(heap_pop_with(&mut heap, cmp, &values), 2); // 2 is an index to 2.
-assert_eq!(heap_pop_with(&mut heap, cmp, &values), 0); // 0 is an index to 3.
+assert_eq!(heap_pop_with(&mut index_heap, cmp, &values), 1); // 1 indexes 1.
+assert_eq!(heap_pop_with(&mut index_heap, cmp, &values), 2); // 2 indexes 2.
+assert_eq!(heap_pop_with(&mut index_heap, cmp, &values), 0); // 0 indexes 3.
 ```
 
 ## License
