@@ -673,4 +673,35 @@ mod tests {
         assert_eq!(i, 4);
         assert_eq!(values[i], 2);
     }
+
+    #[test]
+    fn test_readme_code() {
+        let mut heap = Vec::new();
+        heap_push(&mut heap, 3);
+        heap_push(&mut heap, 1);
+        heap_push(&mut heap, 2);
+        assert_eq!(heap_pop(&mut heap), Some(1));
+
+        let mut heap = Vec::new();
+        let cmp = |a: &i32, b: &i32| a.cmp(b);
+
+        heap_push_with(&mut heap, 3, cmp);
+        heap_push_with(&mut heap, 1, cmp);
+        heap_push_with(&mut heap, 2, cmp);
+        assert_eq!(heap_pop_with(&mut heap, cmp), Some(1));
+
+        let values = [3, 1, 2];
+        let cmp = |a: &usize, b: &usize, x: &[i32]| x[*a].cmp(&x[*b]);
+
+        let mut index_heap = Vec::new();
+
+        heap_push_with_aux(&mut index_heap, 0, cmp, &values);
+        heap_push_with_aux(&mut index_heap, 1, cmp, &values);
+        heap_push_with_aux(&mut index_heap, 2, cmp, &values);
+
+        // Values popped from heap are indexes into `values`.
+        assert_eq!(heap_pop_with_aux(&mut index_heap, cmp, &values), Some(1));
+        assert_eq!(heap_pop_with_aux(&mut index_heap, cmp, &values), Some(2));
+        assert_eq!(heap_pop_with_aux(&mut index_heap, cmp, &values), Some(0));
+    }
 }
