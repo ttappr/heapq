@@ -1,15 +1,15 @@
 # heapq
 
 A minimal Rust library for heap-based priority queues. This crate provides
-heap operations for efficient insertion, removal, and access to the smallest
-or largest element. It is inspired by Python's `heapq` module, but written
+heap operations for efficient insertion, removal, and access to the smallest 
+element. It is inspired by Python's `heapq` module, but written
 in safe, idiomatic Rust.
 
 ## Features
 
-- Min-heap and max-heap support
+- Min-heap implementation
 - Efficient push and pop operations
-- Peek at the top element
+- Peek at the top element: `heap[0]`
 - No unsafe code
 
 ## Usage
