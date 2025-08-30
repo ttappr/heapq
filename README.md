@@ -9,7 +9,7 @@ in safe, idiomatic Rust.
 
 - Min-heap implementation
 - Efficient push and pop operations
-- Peek at the top element: `heap[0]`
+- Peek at the top element: `heap.get(0)`
 - No unsafe code
 
 ## Usage
