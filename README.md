@@ -13,10 +13,10 @@ in safe, idiomatic Rust.
 - No unsafe code
 
 ## Implemented Functions
-Each operation has three related functions. The first relies on the heap's
+Each operation has three related functions. The first relies on the heap
 item's type `T` for comparison operations; the second takes a `cmp` function
 that accepts two items for comparison; and, the third takes `cmp` and additional
-information `aux` that is passed to the `cmp` function on each call.
+information `aux`, which gets passed to the `cmp` function when invoked.
 
 - `heapify<T>(heap: &mut [T])`
     - `heapify_with<T, C>(heap: &mut [T], cmp: C)`
