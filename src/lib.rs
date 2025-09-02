@@ -323,7 +323,7 @@ where
     heap_replace_with(heap, item, T::cmp)
 }
 
-/// Pops an item from the heap, pushes the new item, then returns item. `cmp` is
+/// Pops an item from the heap, pushes the new item, then returns item. `cmp` is  
 /// the comparison function used to maintain the heap.
 /// 
 #[inline]
@@ -349,10 +349,10 @@ where
 ///     }
 /// ```
 ///
-pub fn heap_replace_with_aux<T, C, A>(heap: &mut [T], 
-                                      item: T, 
-                                      cmp: C, 
-                                      aux: A)
+pub fn heap_replace_with_aux<T, C, A>(heap : &mut [T], 
+                                      item : T, 
+                                      cmp  : C, 
+                                      aux  : A)
     -> T 
 where
     C: Fn(&T, &T, A) -> Ordering,
@@ -459,6 +459,7 @@ where
 
 #[cfg(test)]
 mod tests {
+    use std::cell::RefCell;
     use super::*;
 
     // The sequence 0 to 99 (inclusive) shuffled.
@@ -672,6 +673,57 @@ mod tests {
         let i = heap_replace_with_aux(&mut index_heap, 3, cmp, &values);
         assert_eq!(i, 4);
         assert_eq!(values[i], 2);
+    }
+
+    #[test]
+    fn test_time_complexity() {
+        // The number of comparisons needed to perform the same operation 100 
+        // times on an array of size 100 should be log(n) * 100 if the time 
+        // complexity is O(n * log2 n).
+        let lim_flat = (100.0_f32.log2().ceil() * 100.0) as i32;
+
+        // The numer of comparisons to perform the same O(log n) operation 100 
+        // times on an array that grows from 0 to 100 items or shrinks from 100 
+        // to 0 items should have an upper limit of 100 * log2(n).
+        let lim_grow = (1..=100).fold(0., |a, n| a + (n as f32).log2().ceil());
+
+        let mut heap = SHUFFLED_INTS.to_vec();
+
+        // Set the comparison counter to 0.
+        let count = RefCell::new(0i32);
+
+        let cmp = |a: &i32, b: &i32| { 
+            *count.borrow_mut() += 1; // Count the comparison.
+            a.cmp(&b) 
+        };
+
+
+        // This should be an O(n) operation applied 100 times.
+        heapify_with(&mut heap, cmp);
+
+        print!("\n\nThe array to be heapified has {} items.", heap.len());
+
+        println!("\nIf heapify were O(n * log n), it would take {} \
+                  comparisons.", lim_flat);
+        println!("heapify_with() required {} comparisons.\n", *count.borrow());
+
+        // Make sure heapify is O(n), or significantly less than O(n * log2 n).
+        // The number of comparisons will likely be C * n. Let's use 2 * n 
+        // as the upper limit.
+        assert!(*count.borrow() <= 200);
+
+        // Reset the comparison counter.
+        *count.borrow_mut() = 0;
+
+        // Pop should be an O(log n) operation applied to a shrinking heap.
+        while let Some(_) = heap_pop_with(&mut heap, cmp) { }
+
+        println!("\nThe upper limit for the number of comparisons required to \
+                  deplete a heap of 100 items, where pop is an O(log n) \
+                  operation, is {}.", lim_grow);
+        println!("pop_with() required {} comparisons.\n", *count.borrow());
+
+        assert!(*count.borrow() <= lim_grow as i32);  
     }
 
     #[test]
