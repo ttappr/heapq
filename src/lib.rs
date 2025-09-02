@@ -700,12 +700,13 @@ mod tests {
 
         // This should be an O(n) operation applied 100 times.
         heapify_with(&mut heap, cmp);
-
-        print!("\n\nThe array to be heapified has {} items.", heap.len());
-
-        println!("\nIf heapify were O(n * log n), it would take {} \
+        print!("\n\n");
+        println!("The array to be heapified has {} items.", heap.len());
+        println!();
+        println!("If heapify were O(n * log n), it would take {} \
                   comparisons.", lim_flat);
-        println!("heapify_with() required {} comparisons.\n", *count.borrow());
+        println!();
+        println!("heapify_with() required {} comparisons.", *count.borrow());
 
         // Make sure heapify is O(n), or significantly less than O(n * log2 n).
         // The number of comparisons will likely be C * n. Let's use 2 * n 
@@ -718,10 +719,13 @@ mod tests {
         // Pop should be an O(log n) operation applied to a shrinking heap.
         while let Some(_) = heap_pop_with(&mut heap, cmp) { }
 
-        println!("\nThe upper limit for the number of comparisons required to \
-                  deplete a heap of 100 items, where pop is an O(log n) \
-                  operation, is {}.", lim_grow);
-        println!("pop_with() required {} comparisons.\n", *count.borrow());
+        print!("\n\n");
+        println!("The upper limit for the number of comparisons required to \
+                  deplete a heap of 100 items where pop is an O(log n) \
+                  operation is {}.", lim_grow);
+        println!();
+        println!("pop_with() x 100 required {} comparisons.", *count.borrow());
+        println!();
 
         assert!(*count.borrow() <= lim_grow as i32);  
     }
