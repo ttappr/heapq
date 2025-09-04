@@ -78,6 +78,10 @@ assert_eq!(heap_pop_with_aux(index_heap, cmp, &values), Some(2));
 assert_eq!(heap_pop_with_aux(index_heap, cmp, &values), Some(0));
 ```
 
+## Docs
+Build the documentation using `cargo doc`. This should place the documentation
+in the project folder under `./target/doc/heapq/index.html`.
+
 ## License
 
 This project is licensed under the MIT License.
