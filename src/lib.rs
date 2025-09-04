@@ -569,7 +569,7 @@ mod tests {
     {
         use Ordering::Greater;
 
-        for k in 0..a.len() / 2 {
+        for k in 0..(a.len() / 2).saturating_sub(2) {
             // Heap invariant: a[k] <= a[2*k+1] and a[k] <= a[2*k+2] 
             if !(cmp(&a[k], &a[2 * k + 1], aux) != Greater 
                 && cmp(&a[k], &a[2 * k + 2], aux) != Greater) {
@@ -584,6 +584,7 @@ mod tests {
         let mut heap = SHUFFLED_INTS.to_vec();
 
         heapify(&mut heap);
+        assert!(check_invariant(&heap));
 
         let mut result = Vec::with_capacity(heap.len());
 
@@ -591,7 +592,6 @@ mod tests {
             result.push(v);
         }
         assert_eq!(result, ORDERED_INTS);
-        assert!(check_invariant(&heap));
     }
 
     #[test]
@@ -605,9 +605,9 @@ mod tests {
 
         while let Some(v) = heap_pop_with(&mut heap, cmp) {
             result.push(v);
+            assert!(check_invariant(&heap));
         }
         assert_eq!(result, ORDERED_INTS);
-        assert!(check_invariant(&heap));
     }
 
     #[test]
@@ -616,6 +616,7 @@ mod tests {
         let cmp = |a: &usize, b: &usize, x: &[i32]| x[*a].cmp(&x[*b]);
 
         heapify_with_aux(&mut index_heap, cmp, &SHUFFLED_INTS);
+        assert!(check_invariant_with_aux(&index_heap, cmp, &SHUFFLED_INTS));
 
         let mut result = Vec::with_capacity(index_heap.len());
 
@@ -624,7 +625,6 @@ mod tests {
             result.push(SHUFFLED_INTS[i]);
         }
         assert_eq!(result, ORDERED_INTS);
-        assert!(check_invariant_with_aux(&index_heap, cmp, &SHUFFLED_INTS));
     }
 
     #[test]
@@ -637,11 +637,12 @@ mod tests {
         for val in vals {
             heap_push(&mut heap, val);
         }
+        assert!(check_invariant(&heap));
+
         while let Some(v) = heap_pop(&mut heap) {
             result.push(v);
         }
         assert_eq!(result, ORDERED_INTS);
-        assert!(check_invariant(&heap));
     }
 
     #[test]
@@ -655,11 +656,12 @@ mod tests {
         for val in vals {
             heap_push_with(&mut heap, val, cmp);
         }
+        assert!(check_invariant_with(&heap, cmp));
+
         while let Some(v) = heap_pop_with(&mut heap, cmp) {
             result.push(v);
         }
         assert_eq!(result, ORDERED_INTS);
-        assert!(check_invariant_with(&heap, cmp));
     }
 
     #[test]
@@ -670,6 +672,7 @@ mod tests {
         for i in 0..100 {
             heap_push_with_aux(&mut index_heap, i, cmp, &SHUFFLED_INTS);
         }
+        assert!(check_invariant_with_aux(&index_heap, cmp, &SHUFFLED_INTS));
 
         let mut result = Vec::with_capacity(index_heap.len());
 
@@ -678,7 +681,6 @@ mod tests {
             result.push(SHUFFLED_INTS[i]);
         }
         assert_eq!(result, ORDERED_INTS);
-        assert!(check_invariant_with_aux(&index_heap, cmp, &SHUFFLED_INTS));
     }
 
     #[test]
