@@ -104,7 +104,7 @@
 //! know that a big sort implies producing "runs" (which are pre-sorted
 //! sequences, which size is usually related to the amount of CPU memory),
 //! followed by a merging passes for these runs, which merging is often
-//! very cleverly organised[1].  It is very important that the initial
+//! very cleverly organised[^1].  It is very important that the initial
 //! sort produces the longest runs possible.  Tournaments are a good way
 //! to that.  If, using all the memory available to hold a tournament, you
 //! replace and percolate items that happen to fit the current run, you'll
@@ -124,8 +124,7 @@
 //! a few applications, and I think it is good to keep a `heap` module
 //! around. :-)
 //!
-//! ---
-//! [1] The disk balancing algorithms which are current, nowadays, are
+//! [^1]: The disk balancing algorithms which are current, nowadays, are
 //! more annoying than clever, and this is a consequence of the seeking
 //! capabilities of the disks.  On devices which cannot seek, like big
 //! tape drives, the story was quite different, and one had to be very
@@ -140,7 +139,22 @@ use std::cmp::Ordering::{self, Less};
 
 
 /// Transform slice into a heap, in-place, in O(n) time.
+/// # Examples
+/// ```rust
+/// use heapq::*;
+/// 
+/// let mut heap = vec![3, 8, 0, 7, 6, 5, 2, 1, 4, 9];
+/// let sorted = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 ///
+/// heapify(&mut heap);
+///
+/// let mut result = Vec::with_capacity(heap.len());
+///
+/// while let Some(v) = heap_pop(&mut heap) {
+///    result.push(v);
+/// }
+/// assert_eq!(result, sorted);
+/// ```
 #[inline]
 pub fn heapify<T>(heap: &mut [T])
 where
@@ -163,8 +177,7 @@ where
 /// parameter allows passing aribitrary data to `cmp`. This could be a
 /// reference to another related structure needed for comparisons.
 ///
-/// # Example
-/// 
+/// # Examples
 /// ```rust
 /// use heapq::*;
 /// 
@@ -198,7 +211,24 @@ where
 }
 
 /// Push item onto heap, maintaining the heap invariant.
+/// # Examples
+/// ```rust
+/// use heapq::*;
+/// 
+/// let vals   = vec![3, 8, 0, 7, 6, 5, 2, 1, 4, 9];
+/// let sorted = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+/// 
+/// let mut heap = Vec::with_capacity(vals.len());
+/// let mut result = Vec::with_capacity(vals.len());
 ///
+/// for val in vals {
+///    heap_push(&mut heap, val);
+/// }
+/// while let Some(v) = heap_pop(&mut heap) {
+///    result.push(v);
+/// }
+/// assert_eq!(result, sorted);
+/// ```
 #[inline]
 pub fn heap_push<T>(heap: &mut Vec<T>, item: T)
 where
@@ -231,7 +261,17 @@ where
 }
 
 /// Pop the smallest item off the heap, maintaining the heap invariant.
+/// # Examples
+/// ```rust
+/// use heapq::*;
+/// 
+/// let mut heap = vec![5, 8, 1, 4, 2];
 ///
+/// heapify(&mut heap);
+///
+/// assert_eq!(heap_pop(&mut heap), Some(1));
+/// assert_eq!(heap_pop(&mut heap), Some(2));
+/// ```
 #[inline]
 pub fn heap_pop<T>(heap: &mut Vec<T>) -> Option<T>
 where
@@ -271,7 +311,16 @@ where
 }
 
 /// Fast version of a heap_push followed by a heap_pop.
+/// ```rust
+/// use heapq::*;
 /// 
+/// let mut heap = vec![5, 8, 1, 4, 2];
+///
+/// heapify(&mut heap);
+///
+/// assert_eq!(heap_pushpop(&mut heap, 0), 0);
+/// assert_eq!(heap_pushpop(&mut heap, 7), 1);
+/// ```
 #[inline]
 pub fn heap_pushpop<T>(heap: &mut [T], item: T) -> T 
 where
@@ -314,7 +363,20 @@ where
 
 /// Pops an item from the heap and pushes the new item onto it. The popped item
 /// is returned.
+/// # Examples
+/// ```rust
+/// use heapq::*;
+/// let mut heap = [5, 8, 1, 4, 2];
 ///
+/// heapify(&mut heap);
+///
+/// assert_eq!(heap_replace(&mut heap, 0), 1);
+/// assert_eq!(heap_replace(&mut heap, 7), 0);
+/// assert_eq!(heap_replace(&mut heap, 7), 2);
+///
+/// heap.sort();
+/// assert_eq!(heap, [4, 5, 7, 7, 8]);
+/// ```
 #[inline]
 pub fn heap_replace<T>(heap: &mut [T], item: T) -> T 
 where
@@ -486,6 +548,37 @@ mod tests {
         91, 92, 93, 94, 95, 96, 97, 98, 99        
     ];
 
+    fn check_invariant<T>(a: &[T]) -> bool
+    where
+        T: Ord
+    {
+        check_invariant_with(a, T::cmp)
+    }
+
+    fn check_invariant_with<T, C>(a: &[T], cmp: C) -> bool 
+    where
+        C: Fn(&T, &T) -> Ordering
+    {
+        check_invariant_with_aux(a, |a, b, _| cmp(a, b), ())
+    }
+
+    fn check_invariant_with_aux<T, C, A>(a: &[T], cmp: C, aux: A) -> bool 
+    where
+        C: Fn(&T, &T, A) -> Ordering,
+        A: Copy
+    {
+        use Ordering::Greater;
+
+        for k in 0..a.len() / 2 {
+            // Heap invariant: a[k] <= a[2*k+1] and a[k] <= a[2*k+2] 
+            if !(cmp(&a[k], &a[2 * k + 1], aux) != Greater 
+                && cmp(&a[k], &a[2 * k + 2], aux) != Greater) {
+                return false;
+            }
+        }
+        true
+    }
+
     #[test]
     fn test_heapify() {
         let mut heap = SHUFFLED_INTS.to_vec();
@@ -498,6 +591,7 @@ mod tests {
             result.push(v);
         }
         assert_eq!(result, ORDERED_INTS);
+        assert!(check_invariant(&heap));
     }
 
     #[test]
@@ -513,6 +607,7 @@ mod tests {
             result.push(v);
         }
         assert_eq!(result, ORDERED_INTS);
+        assert!(check_invariant(&heap));
     }
 
     #[test]
@@ -529,6 +624,7 @@ mod tests {
             result.push(SHUFFLED_INTS[i]);
         }
         assert_eq!(result, ORDERED_INTS);
+        assert!(check_invariant_with_aux(&index_heap, cmp, &SHUFFLED_INTS));
     }
 
     #[test]
@@ -545,6 +641,7 @@ mod tests {
             result.push(v);
         }
         assert_eq!(result, ORDERED_INTS);
+        assert!(check_invariant(&heap));
     }
 
     #[test]
@@ -562,6 +659,7 @@ mod tests {
             result.push(v);
         }
         assert_eq!(result, ORDERED_INTS);
+        assert!(check_invariant_with(&heap, cmp));
     }
 
     #[test]
@@ -580,6 +678,7 @@ mod tests {
             result.push(SHUFFLED_INTS[i]);
         }
         assert_eq!(result, ORDERED_INTS);
+        assert!(check_invariant_with_aux(&index_heap, cmp, &SHUFFLED_INTS));
     }
 
     #[test]
@@ -596,6 +695,7 @@ mod tests {
         assert_eq!(heap_pushpop(&mut heap, 7), 7);
         assert_eq!(heap_pushpop(&mut heap, 7), 7);
         assert_eq!(heap.len(), 5);
+        assert!(check_invariant(&heap));
     }
 
     #[test]
@@ -611,6 +711,7 @@ mod tests {
         assert_eq!(heap_pushpop_with(&mut heap, 2, cmp), 4);
         assert_eq!(heap_pushpop_with(&mut heap, 2, cmp), 2);
         assert_eq!(heap.len(), 5);
+        assert!(check_invariant_with(&heap, cmp));
     }
 
     #[test]
@@ -624,6 +725,7 @@ mod tests {
         // Note that values on heap are indexes of `values`.
         assert_eq!(heap_pushpop_with_aux(&mut index_heap, 0, cmp, &values), 2);
         assert_eq!(heap_pushpop_with_aux(&mut index_heap, 3, cmp, &values), 4);
+        assert!(check_invariant_with_aux(&index_heap, cmp, &values));
     }
 
     #[test]
@@ -638,6 +740,7 @@ mod tests {
         
         heap.sort();
         assert_eq!(heap, [4, 5, 7, 7, 8]);
+        assert!(check_invariant(&heap));
     }
 
     #[test]
@@ -653,6 +756,7 @@ mod tests {
         
         heap.sort();
         assert_eq!(heap, [4, 5, 7, 7, 8]);
+        assert!(check_invariant(&heap));
     }
 
     #[test]
@@ -700,6 +804,7 @@ mod tests {
 
         // This should be an O(n) operation applied 100 times.
         heapify_with(&mut heap, cmp);
+        
         print!("\n\n");
         println!("The array to be heapified has {} items.", heap.len());
         println!();
@@ -732,32 +837,33 @@ mod tests {
 
     #[test]
     fn test_readme_code() {
-        let mut heap = Vec::new();
-        heap_push(&mut heap, 3);
-        heap_push(&mut heap, 1);
-        heap_push(&mut heap, 2);
-        assert_eq!(heap_pop(&mut heap), Some(1));
+        let heap = &mut Vec::new();
+        heap_push(heap, 3);
+        heap_push(heap, 1);
+        heap_push(heap, 2);
+        assert_eq!(heap_pop(heap), Some(1));
 
-        let mut heap = Vec::new();
+        let heap = &mut Vec::new();
         let cmp = |a: &i32, b: &i32| a.cmp(b);
 
-        heap_push_with(&mut heap, 3, cmp);
-        heap_push_with(&mut heap, 1, cmp);
-        heap_push_with(&mut heap, 2, cmp);
-        assert_eq!(heap_pop_with(&mut heap, cmp), Some(1));
+        heap_push_with(heap, 3, cmp);
+        heap_push_with(heap, 1, cmp);
+        heap_push_with(heap, 2, cmp);
+        assert_eq!(heap_pop_with(heap, cmp), Some(1));
 
         let values = [3, 1, 2];
         let cmp = |a: &usize, b: &usize, x: &[i32]| x[*a].cmp(&x[*b]);
 
-        let mut index_heap = Vec::new();
+        let index_heap = &mut Vec::new();
 
-        heap_push_with_aux(&mut index_heap, 0, cmp, &values);
-        heap_push_with_aux(&mut index_heap, 1, cmp, &values);
-        heap_push_with_aux(&mut index_heap, 2, cmp, &values);
+        // Indexes for items in `values` are pushed onto the heap.
+        heap_push_with_aux(index_heap, 0, cmp, &values);
+        heap_push_with_aux(index_heap, 1, cmp, &values);
+        heap_push_with_aux(index_heap, 2, cmp, &values);
 
         // Values popped from heap are indexes into `values`.
-        assert_eq!(heap_pop_with_aux(&mut index_heap, cmp, &values), Some(1));
-        assert_eq!(heap_pop_with_aux(&mut index_heap, cmp, &values), Some(2));
-        assert_eq!(heap_pop_with_aux(&mut index_heap, cmp, &values), Some(0));
+        assert_eq!(heap_pop_with_aux(index_heap, cmp, &values), Some(1));
+        assert_eq!(heap_pop_with_aux(index_heap, cmp, &values), Some(2));
+        assert_eq!(heap_pop_with_aux(index_heap, cmp, &values), Some(0));
     }
 }
