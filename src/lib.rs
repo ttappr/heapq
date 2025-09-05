@@ -526,28 +526,25 @@ mod tests {
 
     // The sequence 0 to 99 (inclusive) shuffled.
     const SHUFFLED_INTS: [i32; 100] = [
-        23, 22, 55, 87, 59, 27, 90, 14, 82, 21, 44, 75,
-        20, 50, 3, 34, 83, 72, 68, 8, 57, 58, 6, 95, 16,
-        28, 13, 86, 76, 30, 79, 54, 24, 80, 65, 84, 53,
-        78, 67, 56, 18, 93, 61, 42, 10, 77, 40, 2, 71,
-        47, 85, 7, 26, 33, 32, 62, 9, 92, 43, 38, 88,
-        73, 74, 41, 4, 35, 70, 19, 69, 15, 94, 0, 66,
-        39, 31, 63, 89, 5, 25, 99, 91, 51, 98, 97, 1,
-        96, 29, 37, 36, 45, 17, 11, 52, 60, 49, 81, 48,
-        12, 46, 64
+        23, 22, 55, 87, 59, 27, 90, 14, 82, 21, 44, 75, 20, 50,  3,
+        34, 83, 72, 68,  8, 57, 58,  6, 95, 16, 28, 13, 86, 76, 30,
+        79, 54, 24, 80, 65, 84, 53, 78, 67, 56, 18, 93, 61, 42, 10,
+        77, 40,  2, 71, 47, 85,  7, 26, 33, 32, 62,  9, 92, 43, 38,
+        88, 73, 74, 41,  4, 35, 70, 19, 69, 15, 94,  0, 66, 39, 31,
+        63, 89,  5, 25, 99, 91, 51, 98, 97,  1, 96, 29, 37, 36, 45,
+        17, 11, 52, 60, 49, 81, 48, 12, 46, 64
     ];
     const ORDERED_INTS: [i32; 100] = [
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 
-        14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 
-        25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 
-        36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 
-        47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 
-        58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 
-        69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 
-        80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 
-        91, 92, 93, 94, 95, 96, 97, 98, 99        
+         0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
+        15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+        30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44,
+        45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+        60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74,
+        75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
+        90, 91, 92, 93, 94, 95, 96, 97, 98, 99    
     ];
 
+    /// Utility function for checking whether a heap's invariant is preserved.
     fn check_invariant<T>(a: &[T]) -> bool
     where
         T: Ord
@@ -555,6 +552,7 @@ mod tests {
         check_invariant_with(a, T::cmp)
     }
 
+    /// Utility function for checking whether a heap's invariant is preserved.
     fn check_invariant_with<T, C>(a: &[T], cmp: C) -> bool 
     where
         C: Fn(&T, &T) -> Ordering
@@ -562,6 +560,7 @@ mod tests {
         check_invariant_with_aux(a, |a, b, _| cmp(a, b), ())
     }
 
+    /// Utility function for checking whether a heap's invariant is preserved.
     fn check_invariant_with_aux<T, C, A>(a: &[T], cmp: C, aux: A) -> bool 
     where
         C: Fn(&T, &T, A) -> Ordering,
@@ -790,7 +789,8 @@ mod tests {
 
         // The numer of comparisons to perform the same O(log n) operation 100 
         // times on an array that grows from 0 to 100 items or shrinks from 100 
-        // to 0 items should have an upper limit of 100 * log2(n).
+        // to 0 items should have an upper limit of `Σ x * log n`, which is the
+        // sum of `x * log n` for values of `x` from `1` to `100`.
         let lim_grow = (1..=100).fold(0., |a, n| a + (n as f32).log2().ceil());
 
         let mut heap = SHUFFLED_INTS.to_vec();
@@ -811,9 +811,9 @@ mod tests {
         println!("The array to be heapified has {} items.", heap.len());
         println!();
         println!("If heapify were O(n * log n), it would take {} \
-                  comparisons.", lim_flat);
+                  comparisons. Heapify should be MUCH less.", lim_flat);
         println!();
-        println!("heapify_with() required {} comparisons.", *count.borrow());
+        println!("`heapify_with()` required {} comparisons.", *count.borrow());
 
         // Make sure heapify is O(n), or significantly less than O(n * log2 n).
         // The number of comparisons will likely be C * n. Let's use 2 * n 
@@ -831,7 +831,8 @@ mod tests {
                   deplete a heap of 100 items where pop is an O(log n) \
                   operation is {}.", lim_grow);
         println!();
-        println!("pop_with() x 100 required {} comparisons.", *count.borrow());
+        println!("pop_with() executed 100 times required {} comparisons.", 
+                 *count.borrow());
         println!();
 
         assert!(*count.borrow() <= lim_grow as i32);  
