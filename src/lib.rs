@@ -135,7 +135,7 @@
 //! Believe me, real good tape sorts were quite spectacular to watch!
 //! From all times, sorting has always been a Great Art! :-)
 
-use std::cmp::Ordering::{self, Less};
+use core::cmp::Ordering::{self, Less};
 
 
 /// Transform slice into a heap, in-place, in O(n) time.
@@ -353,7 +353,7 @@ where
     A: Copy
 {
     if !heap.is_empty() && cmp(&heap[0], &item, aux) == Less {
-        let item = std::mem::replace(&mut heap[0], item);
+        let item = core::mem::replace(&mut heap[0], item);
         sift_up(heap, 0, cmp, aux);
         item
     } else {
@@ -421,7 +421,7 @@ where
     A: Copy
 {
     if !heap.is_empty() {
-        let item = std::mem::replace(&mut heap[0], item);
+        let item = core::mem::replace(&mut heap[0], item);
         sift_up(heap, 0, cmp, aux);
         item
     } else {
@@ -521,7 +521,9 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::cell::RefCell;
+    use core::cell::RefCell;
+    use Ordering::Greater;
+
     use super::*;
 
     // The sequence 0 to 99 (inclusive) shuffled.
@@ -566,8 +568,6 @@ mod tests {
         C: Fn(&T, &T, A) -> Ordering,
         A: Copy
     {
-        use Ordering::Greater;
-
         for k in 0..(a.len() / 2).saturating_sub(2) {
             // Heap invariant: a[k] <= a[2*k+1] and a[k] <= a[2*k+2] 
             if !(cmp(&a[k], &a[2 * k + 1], aux) != Greater 
@@ -789,8 +789,8 @@ mod tests {
 
         // The numer of comparisons to perform the same O(log n) operation 100 
         // times on an array that grows from 0 to 100 items or shrinks from 100 
-        // to 0 items should have an upper limit of `Σ x * log n`, which is the
-        // sum of `x * log n` for values of `x` from `1` to `100`.
+        // to 0 items should have an upper limit of `Σ log n`, which is the
+        // sum of `log n` for values of `n` from `1` to `100`.
         let lim_grow = (1..=100).fold(0., |a, n| a + (n as f32).log2().ceil());
 
         let mut heap = SHUFFLED_INTS.to_vec();
@@ -804,7 +804,7 @@ mod tests {
         };
 
 
-        // This should be an O(n) operation applied 100 times.
+        // This should be an O(n) operation.
         heapify_with(&mut heap, cmp);
         
         print!("\n\n");
