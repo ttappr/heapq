@@ -82,6 +82,11 @@ assert_eq!(heap_pop_with_aux(index_heap, cmp, &values), Some(0));
 Build the documentation using `cargo doc`. This should place the documentation
 in the project folder under `./target/doc/heapq/index.html`.
 
+The documentation can be accessed directly from the file system with a browser, 
+but for a better experience, a simple web server can be used to serve the 
+documentation. To use the built-in Python web server, issue the command
+`python -m http.server` and browse to `localhost:8000`.
+
 ## License
 
 This project is licensed under the MIT License.
